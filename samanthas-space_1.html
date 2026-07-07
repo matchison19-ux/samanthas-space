@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="color-scheme" content="only light">
+<title>Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f2f6f1;
+  --card:#ffffff;
+  --ink:#2f3b33;
+  --ink-soft:#63705f;
+  --lilac:#7ba07f;
+  --lilac-deep:#4f7357;
+  --lilac-pale:#e3efe2;
+  --sage:#9cae9e;
+  --sage-pale:#e8f0e8;
+  --blush:#cfe0c9;
+  --line:#dde8db;
+  --radius:20px;
+  --shadow:0 4px 20px rgba(79,115,87,.09);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--ink);font-family:'Karla',sans-serif;min-height:100%}
+body{max-width:480px;margin:0 auto;padding:env(safe-area-inset-top) 0 calc(90px + env(safe-area-inset-bottom))}
+h1,h2,h3{font-family:'Fraunces',serif;font-weight:500;letter-spacing:-.01em}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink)}
+.screen{display:none;padding:24px 20px;animation:fadein .25s ease}
+.screen.active{display:block}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---------- header ---------- */
+.top{display:flex;align-items:center;justify-content:space-between;padding:20px 20px 0}
+.top h1{font-size:24px;color:var(--ink)}
+.hidebtn{font-size:13px;color:var(--ink-soft);padding:8px 12px;border-radius:12px;background:var(--card);box-shadow:var(--shadow)}
+
+/* ---------- home ---------- */
+.hero-btn{display:block;width:100%;margin:22px 0 14px;padding:30px 24px;border-radius:26px;background:linear-gradient(135deg,var(--lilac-deep),var(--lilac));color:#fff;text-align:left;box-shadow:0 8px 28px rgba(79,115,87,.28)}
+.hero-btn .big{font-family:'Fraunces',serif;font-size:24px;display:block;margin-bottom:6px}
+.hero-btn .sub{font-size:14px;opacity:.85}
+.mike-btn{display:flex;align-items:center;gap:14px;width:100%;padding:18px 20px;border-radius:var(--radius);background:var(--card);box-shadow:var(--shadow);text-align:left;margin-bottom:22px;text-decoration:none;color:var(--ink)}
+.mike-btn .icon{width:44px;height:44px;border-radius:14px;background:var(--sage-pale);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.mike-btn .t{font-weight:700;font-size:16px}
+.mike-btn .d{font-size:13px;color:var(--ink-soft)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tile{padding:20px 16px;border-radius:var(--radius);background:var(--card);box-shadow:var(--shadow);text-align:left}
+.tile .emoji{font-size:22px;display:block;margin-bottom:10px}
+.tile .label{font-weight:700;font-size:15px}
+.tile .hint{font-size:12.5px;color:var(--ink-soft);margin-top:3px}
+
+/* ---------- shared ---------- */
+.back{font-size:14px;color:var(--lilac-deep);font-weight:600;margin-bottom:14px;display:inline-flex;align-items:center;gap:6px}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;margin-bottom:14px}
+.btn{display:inline-block;padding:14px 22px;border-radius:16px;background:var(--lilac-deep);color:#fff;font-weight:700;font-size:15px;text-decoration:none;text-align:center}
+.btn.full{display:block;width:100%}
+.btn.soft{background:var(--lilac-pale);color:var(--lilac-deep)}
+.btn.ghost{background:none;color:var(--ink-soft);font-weight:600}
+.small-note{font-size:13px;color:var(--ink-soft);line-height:1.5}
+
+/* ---------- grounding ---------- */
+.breath-wrap{display:flex;flex-direction:column;align-items:center;padding:26px 0 10px}
+.breath-circle{width:170px;height:170px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#a8c9ac,var(--lilac-deep));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:15px;transition:transform 4s ease-in-out;transform:scale(.72)}
+.breath-circle.in{transform:scale(1);transition-duration:4s}
+.breath-circle.hold{transform:scale(1);transition-duration:.1s}
+.breath-circle.out{transform:scale(.72);transition-duration:6s}
+.breath-count{margin-top:18px;font-size:14px;color:var(--ink-soft)}
+.prompt-box textarea{width:100%;border:1.5px solid var(--line);border-radius:14px;padding:14px;min-height:90px;resize:vertical;background:#fcfbfe}
+.cope-suggest{background:var(--lilac-pale);border-radius:var(--radius);padding:22px;text-align:center;margin-bottom:14px}
+.cope-suggest .txt{font-family:'Fraunces',serif;font-size:20px;color:var(--ink);line-height:1.4}
+
+/* ---------- coping list ---------- */
+.cope-item{display:flex;align-items:center;gap:12px;background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:15px 16px;margin-bottom:10px}
+.cope-item .txt{flex:1;font-size:15px}
+.cope-item button{color:var(--ink-soft);font-size:13px;padding:6px}
+.empty{background:var(--lilac-pale);border-radius:var(--radius);padding:28px 22px;text-align:center;margin-bottom:16px}
+.empty h3{font-size:19px;margin-bottom:8px;color:var(--lilac-deep)}
+.empty p{font-size:14px;color:var(--ink-soft);line-height:1.55}
+.addrow{display:flex;gap:8px;margin-top:8px}
+.addrow input{flex:1;border:1.5px solid var(--line);border-radius:14px;padding:13px 14px;background:#fcfbfe}
+
+/* ---------- journal ---------- */
+.field-label{font-weight:700;font-size:14px;margin:16px 0 8px;display:block}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:9px 15px;border-radius:999px;background:var(--lilac-pale);color:var(--lilac-deep);font-size:14px;font-weight:600}
+.chip.on{background:var(--lilac-deep);color:#fff}
+.stress-row{display:flex;align-items:center;gap:12px}
+.stress-row input[type=range]{flex:1;accent-color:var(--lilac-deep)}
+.stress-val{font-family:'Fraunces',serif;font-size:24px;width:36px;text-align:center;color:var(--lilac-deep)}
+.entry{background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:16px;margin-bottom:10px}
+.entry .when{font-size:12.5px;color:var(--ink-soft);margin-bottom:6px}
+.entry .tags{font-size:13.5px;color:var(--lilac-deep);font-weight:600;margin-bottom:4px}
+.entry .body{font-size:14.5px;line-height:1.5}
+.entry .del{font-size:12.5px;color:var(--ink-soft);margin-top:8px}
+
+/* ---------- reports ---------- */
+.daterow{display:flex;gap:10px;margin-bottom:14px}
+.daterow label{flex:1;min-width:0;font-size:13px;color:var(--ink-soft);font-weight:600}
+.daterow input{display:block;width:100%;min-width:0;max-width:100%;-webkit-appearance:none;appearance:none;border:1.5px solid var(--line);border-radius:12px;padding:10px 8px;margin-top:5px;background:#fcfbfe;height:44px;text-align:left;font-size:14px}
+.chart-box{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:14px}
+.chart-box h3{font-size:16px;margin-bottom:12px}
+svg text{font-family:'Karla',sans-serif}
+
+/* ---------- sos ---------- */
+#sos{position:fixed;inset:0;background:linear-gradient(170deg,#f2f6f1,#e3efe2);z-index:80;display:none;flex-direction:column;align-items:center;justify-content:center;padding:30px 24px;text-align:center;overflow-y:auto}
+#sos.on{display:flex}
+#sosMsg{font-family:'Fraunces',serif;font-size:21px;color:var(--ink);margin:18px 0 6px}
+#sosOpts{display:none;width:100%;max-width:340px;margin-top:14px}
+#sosOpts.on{display:block;animation:fadein .4s ease}
+#sosSkip{font-size:13.5px;color:var(--ink-soft);margin-top:16px;text-decoration:underline}
+#sosOk{font-size:14px;color:var(--ink-soft);margin-top:22px;text-decoration:underline}
+.sos-opt{display:block;width:100%;padding:17px;border-radius:18px;font-weight:700;font-size:16px;margin-bottom:10px;text-decoration:none;text-align:center}
+.sos-mike{background:var(--lilac-deep);color:#fff}
+.sos-alt{background:var(--card);color:var(--lilac-deep);box-shadow:var(--shadow)}
+/* ---------- reset steps ---------- */
+.reset-step{text-align:center;padding:10px 4px}
+.reset-step .stepnum{font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
+.reset-step .steptxt{font-family:'Fraunces',serif;font-size:21px;line-height:1.45;color:var(--ink);margin-bottom:8px}
+.reset-step .stepsub{font-size:14px;color:var(--ink-soft);line-height:1.5}
+
+/* ---------- decoy ---------- */
+#decoy{position:fixed;inset:0;background:#fff;z-index:99;display:none;padding:28px 22px;font-family:'Karla',sans-serif}
+#decoy.on{display:block}
+#decoy h2{font-family:'Karla',sans-serif;font-weight:700;font-size:20px;margin-bottom:16px;color:#333}
+#decoy ul{list-style:none}
+#decoy li{padding:12px 0;border-bottom:1px solid #eee;color:#444;font-size:15px}
+#decoy .dot{position:fixed;bottom:18px;right:18px;width:14px;height:14px;border-radius:50%;background:#e8e8e8}
+
+/* ---------- nav ---------- */
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--card);border-top:1px solid var(--line);display:flex;z-index:10}
+.nav button{flex:1;padding:12px 4px calc(16px + env(safe-area-inset-bottom));font-size:11.5px;color:var(--ink-soft);font-weight:600;display:flex;flex-direction:column;align-items:center;gap:3px}
+.nav button .ic{font-size:19px}
+.nav button.on{color:var(--lilac-deep)}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <h1 id="greet">Hi Samantha</h1>
+  <button class="hidebtn" onclick="hideNow()">Hide</button>
+</div>
+
+<!-- ============ HOME ============ -->
+<div class="screen active" id="s-home">
+  <button class="hero-btn" onclick="openSOS()">
+    <span class="big">I need this right now</span>
+    <span class="sub">One tap. Everything else can wait.</span>
+  </button>
+  <button class="btn ghost" style="width:100%;margin:-6px 0 10px" onclick="go('s-after')">I want to check in after a hard moment</button>
+  <a class="mike-btn" id="mikeLink" href="#">
+    <span class="icon">&#128172;</span>
+    <span>
+      <span class="t">Message Mike</span><br>
+      <span class="d">One tap. He wants to hear from you.</span>
+    </span>
+  </a>
+  <div class="grid">
+    <button class="tile" onclick="go('s-urge')"><span class="emoji">&#127754;</span><span class="label">Urge timer</span><div class="hint">Ride the wave out</div></button>
+    <button class="tile" onclick="go('s-trace')"><span class="emoji">&#128171;</span><span class="label">Trace &amp; breathe</span><div class="hint">Hands and eyes busy</div></button>
+    <button class="tile" onclick="go('s-cope')"><span class="emoji">&#127807;</span><span class="label">My coping list</span><div class="hint">Things that help me</div></button>
+    <button class="tile" onclick="go('s-journal')"><span class="emoji">&#128394;</span><span class="label">Journal</span><div class="hint">Check in with yourself</div></button>
+    <button class="tile" onclick="go('s-history')"><span class="emoji">&#128214;</span><span class="label">Past entries</span><div class="hint">Read back anytime</div></button>
+    <button class="tile" onclick="go('s-reports')"><span class="emoji">&#128200;</span><span class="label">Reports</span><div class="hint">Export for sessions</div></button>
+  </div>
+</div>
+
+<!-- ============ GROUNDING ============ -->
+<div class="screen" id="s-ground">
+  <button class="back" onclick="stopBreath();go('s-home')">&#8592; Home</button>
+  <div class="card">
+    <div class="breath-wrap">
+      <div class="breath-circle" id="bCircle"><span id="bText">Ready</span></div>
+      <div class="breath-count" id="bCount">Breathe with the circle when you're ready</div>
+    </div>
+    <button class="btn full soft" id="bToggle" onclick="toggleBreath()">Start breathing</button>
+  </div>
+  <div class="card prompt-box">
+    <span class="field-label" style="margin-top:0">What's happening right now?</span>
+    <textarea id="groundNote" placeholder="No pressure. A few words is plenty, or skip this."></textarea>
+    <div style="margin-top:10px"><button class="btn soft" onclick="saveGroundNote()">Save to journal</button> <span class="small-note" id="groundSaved"></span></div>
+  </div>
+  <div class="cope-suggest" id="copeSuggest" style="display:none">
+    <div class="txt" id="copeSuggestTxt"></div>
+  </div>
+  <button class="btn full" id="copeCycleBtn" onclick="cycleCope()">Show me something that helps</button>
+  <div style="height:10px"></div>
+  <a class="btn full soft" id="mikeLink2" href="#">Message Mike</a>
+</div>
+
+<!-- ============ URGE TIMER ============ -->
+<div class="screen" id="s-urge">
+  <button class="back" onclick="stopUrge();go('s-home')">&#8592; Home</button>
+  <h2 style="font-size:22px;margin-bottom:6px">Urge timer</h2>
+  <p class="small-note" style="margin-bottom:14px">Urges are like waves. They build, they peak, and they pass on their own. You don't have to fight this one, just ride it out with me for a bit.</p>
+  <div class="card" id="urgeSetup">
+    <span class="field-label" style="margin-top:0">How long feels doable?</span>
+    <div style="display:flex;gap:10px">
+      <button class="btn soft" style="flex:1" onclick="startUrge(10)">10 minutes</button>
+      <button class="btn soft" style="flex:1" onclick="startUrge(15)">15 minutes</button>
+    </div>
+  </div>
+  <div class="card" id="urgeRun" style="display:none;text-align:center">
+    <div style="font-family:'Fraunces',serif;font-size:52px;color:var(--lilac-deep);margin:8px 0" id="urgeClock">10:00</div>
+    <div style="height:8px;border-radius:99px;background:var(--lilac-pale);overflow:hidden;margin-bottom:18px"><div id="urgeBar" style="height:100%;width:0%;background:var(--lilac);transition:width 1s linear"></div></div>
+    <div class="cope-suggest" style="margin-bottom:16px"><div class="txt" id="urgePrompt">You're here. That's the hardest part done.</div></div>
+    <button class="btn full soft" onclick="go('s-trace')">Keep my hands busy instead</button>
+    <div style="height:8px"></div>
+    <a class="btn full ghost" id="mikeLink3" href="#">Message Mike</a>
+    <div style="height:4px"></div>
+    <button class="btn ghost" onclick="stopUrge();showUrgeSetup()">Stop the timer</button>
+  </div>
+  <div class="card" id="urgeDone" style="display:none;text-align:center">
+    <h3 style="font-size:20px;margin-bottom:8px;color:var(--lilac-deep)">You rode it out</h3>
+    <p class="small-note" style="margin-bottom:16px">However the last few minutes went, pausing at all took real strength. Be gentle with yourself.</p>
+    <button class="btn full soft" onclick="logUrge()">Note this in my journal</button>
+    <div style="height:8px"></div>
+    <button class="btn ghost" onclick="showUrgeSetup()">Done</button>
+    <p class="small-note" id="urgeLogged" style="margin-top:10px"></p>
+  </div>
+</div>
+
+<!-- ============ TRACE & BREATHE ============ -->
+<div class="screen" id="s-trace">
+  <button class="back" onclick="stopTrace();go('s-home')">&#8592; Home</button>
+  <h2 style="font-size:22px;margin-bottom:6px">Trace &amp; breathe</h2>
+  <p class="small-note" style="margin-bottom:14px">Follow the glowing dot with your finger. Breathe in as it climbs, breathe out as it falls. Stay with it as long as you like.</p>
+  <div class="card" style="text-align:center">
+    <svg id="traceSvg" viewBox="0 0 300 300" style="width:100%;max-width:320px;touch-action:none">
+      <path id="tracePath" d="M150,40 C230,40 260,90 260,150 C260,210 230,260 150,260 C70,260 40,210 40,150 C40,90 70,40 150,40 Z" fill="none" stroke="#dde8db" stroke-width="10" stroke-linecap="round"/>
+      <path id="traceGlow" d="M150,40 C230,40 260,90 260,150 C260,210 230,260 150,260 C70,260 40,210 40,150 C40,90 70,40 150,40 Z" fill="none" stroke="#7ba07f" stroke-width="10" stroke-linecap="round" stroke-dasharray="0 2000"/>
+      <circle id="traceDot" r="14" fill="#4f7357" cx="150" cy="40"/>
+      <text id="traceText" x="150" y="155" text-anchor="middle" font-size="17" fill="#4f7357" font-weight="600">Breathe in</text>
+    </svg>
+    <button class="btn full soft" id="traceToggle" onclick="toggleTrace()" style="margin-top:10px">Start</button>
+  </div>
+</div>
+
+<!-- ============ COPING LIST ============ -->
+<div class="screen" id="s-cope">
+  <button class="back" onclick="go('s-home')">&#8592; Home</button>
+  <h2 style="font-size:22px;margin-bottom:14px">My coping list</h2>
+  <div id="copeEmpty" class="empty" style="display:none">
+    <h3>This space is yours</h3>
+    <p>Add the things that genuinely help you. A song, a walk, a person, a memory, a cup of tea. There's no right answer, only your answers.</p>
+  </div>
+  <div id="copeList"></div>
+  <div class="card">
+    <span class="field-label" style="margin-top:0">Add something that helps</span>
+    <div class="addrow">
+      <input id="copeInput" placeholder="e.g. Put on my playlist" maxlength="120">
+      <button class="btn" onclick="addCope()">Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ JOURNAL ============ -->
+<div class="screen" id="s-journal">
+  <button class="back" onclick="go('s-home')">&#8592; Home</button>
+  <h2 style="font-size:22px;margin-bottom:6px">Check in</h2>
+  <p class="small-note" style="margin-bottom:14px">Whatever you write here is just for you. Every field is optional.</p>
+  <div class="card">
+    <span class="field-label" style="margin-top:0">Stress right now</span>
+    <div class="stress-row">
+      <input type="range" min="1" max="10" value="5" id="jStress" oninput="document.getElementById('jStressVal').textContent=this.value">
+      <div class="stress-val" id="jStressVal">5</div>
+    </div>
+    <span class="field-label">How I'm feeling</span>
+    <div class="chips" id="jEmotions"></div>
+    <span class="field-label">What's going on</span>
+    <div class="chips" id="jSituations"></div>
+    <span class="field-label">Anything else</span>
+    <textarea id="jText" style="width:100%;border:1.5px solid var(--line);border-radius:14px;padding:14px;min-height:100px;resize:vertical;background:#fcfbfe" placeholder="Write as much or as little as you like..."></textarea>
+    <div style="margin-top:14px"><button class="btn full" onclick="saveEntry()">Save entry</button></div>
+    <p class="small-note" id="jSaved" style="margin-top:10px;text-align:center"></p>
+  </div>
+</div>
+
+<!-- ============ HISTORY ============ -->
+<div class="screen" id="s-history">
+  <button class="back" onclick="go('s-home')">&#8592; Home</button>
+  <h2 style="font-size:22px;margin-bottom:14px">Past entries</h2>
+  <div id="histEmpty" class="empty" style="display:none">
+    <h3>Nothing here yet</h3>
+    <p>Your journal entries will appear here whenever you're ready to write one.</p>
+  </div>
+  <div id="histList"></div>
+</div>
+
+<!-- ============ REPORTS ============ -->
+<div class="screen" id="s-reports">
+  <button class="back" onclick="go('s-home')">&#8592; Home</button>
+  <h2 style="font-size:22px;margin-bottom:6px">Reports</h2>
+  <p class="small-note" style="margin-bottom:14px">Export your entries to share with your psychologist or dietitian, only if and when you choose to.</p>
+  <div class="card">
+    <div class="daterow">
+      <label>From<input type="date" id="rFrom"></label>
+      <label>To<input type="date" id="rTo"></label>
+    </div>
+    <button class="btn full soft" onclick="renderChart()">Update view</button>
+  </div>
+  <div class="chart-box">
+    <h3>Stress over time</h3>
+    <div id="chartArea"><p class="small-note">No entries in this range yet.</p></div>
+  </div>
+  <div class="chart-box">
+    <h3>Summary</h3>
+    <div id="summaryArea" class="small-note">No entries in this range yet.</div>
+  </div>
+  <button class="btn full" onclick="exportPDF()">Export PDF report</button>
+  <div style="height:10px"></div>
+  <button class="btn full soft" onclick="exportCSV()">Export CSV</button>
+</div>
+
+<!-- ============ SOS ============ -->
+<div id="sos">
+  <div class="breath-circle" id="sosCircle"><span id="sosText">Breathe in</span></div>
+  <div id="sosMsg">You're okay. Breathe with me.</div>
+  <button id="sosSkip" onclick="showSosOpts()">Skip to options</button>
+  <div id="sosOpts">
+    <a class="sos-opt sos-mike" id="mikeLink4" href="#">Message Mike</a>
+    <button class="sos-opt sos-alt" onclick="closeSOS();go('s-urge');startUrge(10)">Ride it out (10 min timer)</button>
+    <button class="sos-opt sos-alt" onclick="closeSOS();go('s-ground');cycleCope()">Something that helps</button>
+  </div>
+  <button id="sosOk" onclick="closeSOS();go('s-after')">I'm okay now</button>
+</div>
+
+<!-- ============ AFTER THE MOMENT ============ -->
+<div class="screen" id="s-after">
+  <button class="back" onclick="go('s-home')">&#8592; Home</button>
+  <h2 style="font-size:22px;margin-bottom:6px">After the moment</h2>
+  <p class="small-note" style="margin-bottom:16px">However it went, you're here now, and that matters. No judgment in this space, only curiosity.</p>
+  <button class="tile" style="width:100%;margin-bottom:12px" onclick="go('s-win')">
+    <span class="emoji">&#127793;</span>
+    <span class="label">I rode it out</span>
+    <div class="hint">Note what helped, so future you knows</div>
+  </button>
+  <button class="tile" style="width:100%;margin-bottom:12px" onclick="startReset()">
+    <span class="emoji">&#129703;</span>
+    <span class="label">It happened</span>
+    <div class="hint">A gentle reset, one small step at a time</div>
+  </button>
+  <button class="btn ghost" style="width:100%" onclick="go('s-home')">I just want to close this</button>
+</div>
+
+<!-- ============ WIN LOG ============ -->
+<div class="screen" id="s-win">
+  <button class="back" onclick="go('s-after')">&#8592; Back</button>
+  <h2 style="font-size:22px;margin-bottom:6px">That's a real win</h2>
+  <p class="small-note" style="margin-bottom:14px">What helped you through it? Logging it builds your own menu of things that actually work for you.</p>
+  <div class="card">
+    <span class="field-label" style="margin-top:0">What helped</span>
+    <div class="chips" id="winChips" style="margin-bottom:12px"></div>
+    <div class="addrow">
+      <input id="winInput" placeholder="e.g. Took a shower" maxlength="120">
+      <button class="btn" onclick="saveWin()">Log it</button>
+    </div>
+    <p class="small-note" id="winSaved" style="margin-top:10px"></p>
+  </div>
+  <div class="card">
+    <span class="field-label" style="margin-top:0">Your wins so far</span>
+    <div id="winList" class="small-note">Nothing logged yet. Your first one is coming.</div>
+  </div>
+</div>
+
+<!-- ============ RESET PROTOCOL ============ -->
+<div class="screen" id="s-reset">
+  <button class="back" onclick="go('s-home')">&#8592; Home</button>
+  <div class="card">
+    <div class="reset-step">
+      <div class="stepnum" id="resetNum">Step 1 of 6</div>
+      <div class="steptxt" id="resetTxt"></div>
+      <div class="stepsub" id="resetSub"></div>
+    </div>
+    <div style="margin-top:16px">
+      <button class="btn full" id="resetNext" onclick="nextReset()">Next</button>
+    </div>
+  </div>
+  <a class="btn full ghost" id="mikeLink5" href="#">Message Mike</a>
+</div>
+
+<!-- ============ DECOY ============ -->
+<div id="decoy">
+  <h2>Shopping list</h2>
+  <ul>
+    <li>Milk</li><li>Bread</li><li>Bananas</li><li>Dishwashing liquid</li><li>Cat food</li>
+  </ul>
+  <div class="dot" onclick="unhide()"></div>
+</div>
+
+<!-- ============ NAV ============ -->
+<div class="nav">
+  <button id="n-home" class="on" onclick="go('s-home')"><span class="ic">&#127968;</span>Home</button>
+  <button id="n-cope" onclick="go('s-cope')"><span class="ic">&#127807;</span>Coping</button>
+  <button id="n-journal" onclick="go('s-journal')"><span class="ic">&#128394;</span>Journal</button>
+  <button id="n-reports" onclick="go('s-reports')"><span class="ic">&#128200;</span>Reports</button>
+</div>
+
+<script>
+/* ================= storage ================= */
+const K_COPE='ss_cope', K_ENTRIES='ss_entries';
+function load(k,f){try{return JSON.parse(localStorage.getItem(k))||f}catch(e){return f}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+
+/* ================= sms ================= */
+const MIKE='+61408367161';
+const MSG=encodeURIComponent("I'm struggling, I need help");
+const isiOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
+const smsHref=isiOS?`sms:${MIKE}&body=${MSG}`:`sms:${MIKE}?body=${MSG}`;
+document.getElementById('mikeLink').href=smsHref;
+document.getElementById('mikeLink2').href=smsHref;
+document.getElementById('mikeLink3').href=smsHref;
+document.getElementById('mikeLink4').href=smsHref;
+document.getElementById('mikeLink5').href=smsHref;
+
+/* ================= SOS mode ================= */
+let sosTimer=null,sosOptTimer=null,sosPhase=0;
+const sosPhases=[
+  {c:'in',t:'Breathe in',d:4000},
+  {c:'hold',t:'Hold',d:2000},
+  {c:'out',t:'Breathe out',d:6000}
+];
+function openSOS(){
+  document.getElementById('sos').classList.add('on');
+  document.getElementById('sosOpts').classList.remove('on');
+  document.getElementById('sosSkip').style.display='block';
+  document.getElementById('sosMsg').textContent="You're okay. Breathe with me.";
+  /* hard-set the circle to its small resting size, no transition */
+  const c=document.getElementById('sosCircle');
+  c.className='breath-circle';
+  c.style.transition='none';
+  c.style.transform='scale(.72)';
+  document.getElementById('sosText').textContent='Ready';
+  /* wait two frames so the small size is actually painted, then hand back to CSS */
+  requestAnimationFrame(()=>{requestAnimationFrame(()=>{
+    void c.offsetWidth;
+    c.style.transition='';
+    c.style.transform='';
+    sosPhase=0;
+    sosTimer=setTimeout(stepSos,700);
+  })});
+  sosOptTimer=setTimeout(showSosOpts,30000);
+}
+function stepSos(){
+  const p=sosPhases[sosPhase];
+  const c=document.getElementById('sosCircle');
+  c.className='breath-circle '+p.c;
+  document.getElementById('sosText').textContent=p.t;
+  sosTimer=setTimeout(()=>{sosPhase=(sosPhase+1)%sosPhases.length;stepSos()},p.d);
+}
+function showSosOpts(){
+  clearTimeout(sosOptTimer);
+  document.getElementById('sosOpts').classList.add('on');
+  document.getElementById('sosSkip').style.display='none';
+  document.getElementById('sosMsg').textContent="Keep breathing. When you're ready:";
+}
+function closeSOS(){
+  clearTimeout(sosTimer);clearTimeout(sosOptTimer);
+  document.getElementById('sos').classList.remove('on');
+  const c=document.getElementById('sosCircle');c.className='breath-circle';
+}
+
+/* ================= win log ================= */
+const K_WINS='ss_wins';
+function renderWinScreen(){
+  /* chips from coping list for one-tap logging */
+  const cope=load(K_COPE,[]);
+  document.getElementById('winChips').innerHTML=cope.length?cope.map(c=>`<button class="chip" onclick="quickWin(this.textContent)">${esc(c)}</button>`).join(''):'<span class="small-note">Tip: items from your coping list will appear here for one-tap logging.</span>';
+  const wins=load(K_WINS,[]);
+  document.getElementById('winList').innerHTML=wins.length?wins.slice().reverse().slice(0,15).map(w=>`<div style="padding:7px 0;border-bottom:1px solid var(--line);color:var(--ink)">&#127793; ${esc(w.what)} <span style="color:var(--ink-soft);font-size:12px">&middot; ${new Date(w.ts).toLocaleDateString('en-AU')}</span></div>`).join(''):'Nothing logged yet. Your first one is coming.';
+  document.getElementById('winSaved').textContent='';
+}
+function quickWin(what){logWin(what)}
+function saveWin(){
+  const v=document.getElementById('winInput').value.trim();
+  if(!v)return;
+  logWin(v);
+  document.getElementById('winInput').value='';
+}
+function logWin(what){
+  const wins=load(K_WINS,[]);
+  wins.push({ts:Date.now(),what:what});
+  save(K_WINS,wins);
+  const entries=load(K_ENTRIES,[]);
+  entries.push({ts:Date.now(),stress:null,emotions:[],situations:[],text:'Rode out an urge. What helped: '+what,type:'win'});
+  save(K_ENTRIES,entries);
+  /* offer to add to coping list if not already there */
+  const cope=load(K_COPE,[]);
+  if(!cope.some(c=>c.toLowerCase()===what.toLowerCase())){
+    cope.push(what);save(K_COPE,cope);copeOrder=[];
+  }
+  renderWinScreen();
+  document.getElementById('winSaved').textContent='Logged, and added to your coping list. That worked once, it can work again.';
+}
+
+/* ================= reset protocol ================= */
+const RESET_STEPS=[
+  {t:"You're safe, and this moment doesn't undo your progress.",s:"One hard moment is one moment. Nothing is broken. Let's just take care of you now."},
+  {t:"Sip some water, slowly.",s:"No rush. Notice the temperature of it. Just your body being looked after."},
+  {t:"Change into something comfortable.",s:"Soft clothes, warm socks, whatever feels kind. Comfort is allowed right now."},
+  {t:"Move to a different room.",s:"Somewhere away from the kitchen. The couch, the bedroom, outside for a minute. A change of scene helps the moment pass behind you."},
+  {t:"One slow breath. In... and out.",s:"Shoulders down, jaw loose. You don't need to do anything else right now."},
+  {t:"Rest now. Tomorrow starts fresh.",s:"Be as kind to yourself tonight as you would be to someone you love. If you'd like, message Mike, or jot a line in your journal when you're ready. Both completely optional."}
+];
+let resetIdx=0;
+function startReset(){resetIdx=0;go('s-reset');renderReset()}
+function renderReset(){
+  const st=RESET_STEPS[resetIdx];
+  document.getElementById('resetNum').textContent='Step '+(resetIdx+1)+' of '+RESET_STEPS.length;
+  document.getElementById('resetTxt').textContent=st.t;
+  document.getElementById('resetSub').textContent=st.s;
+  document.getElementById('resetNext').textContent=resetIdx===RESET_STEPS.length-1?'Done':'Next';
+}
+function nextReset(){
+  if(resetIdx>=RESET_STEPS.length-1){
+    const entries=load(K_ENTRIES,[]);
+    entries.push({ts:Date.now(),stress:null,emotions:[],situations:[],text:'Used the gentle reset steps.',type:'moment'});
+    save(K_ENTRIES,entries);
+    go('s-home');return;
+  }
+  resetIdx++;renderReset();
+}
+
+/* ================= urge timer ================= */
+const URGE_PROMPTS=[
+  "You're here. That's the hardest part done.",
+  "This feeling is a wave. It will peak and then it will pass, whether or not you act on it.",
+  "Where do you feel it in your body right now? Just notice it, no need to change it.",
+  "Name five things you can see around you. Slowly.",
+  "You have ridden this out before. You can do it again.",
+  "One minute at a time. That's all this is.",
+  "Try unclenching your jaw and dropping your shoulders.",
+  "You don't have to fight the urge. Just let it be there while you wait.",
+  "Four things you can hear. Take your time finding them.",
+  "The wave is already smaller than it was when you pressed the button.",
+  "Sip some water slowly. Notice the temperature of it.",
+  "You are not your urges. You're the one watching them pass.",
+  "Nearly there. Whatever happens next, this pause counted."
+];
+let urgeTimer=null,urgePromptTimer=null,urgeTotal=0,urgeLeft=0;
+function showUrgeSetup(){
+  document.getElementById('urgeSetup').style.display='block';
+  document.getElementById('urgeRun').style.display='none';
+  document.getElementById('urgeDone').style.display='none';
+  document.getElementById('urgeLogged').textContent='';
+}
+function startUrge(mins){
+  urgeTotal=mins*60;urgeLeft=urgeTotal;
+  document.getElementById('urgeSetup').style.display='none';
+  document.getElementById('urgeDone').style.display='none';
+  document.getElementById('urgeRun').style.display='block';
+  document.getElementById('urgePrompt').textContent=URGE_PROMPTS[0];
+  tickUrge();
+  urgeTimer=setInterval(tickUrge,1000);
+  let pi=1;
+  urgePromptTimer=setInterval(()=>{
+    document.getElementById('urgePrompt').textContent=URGE_PROMPTS[pi%URGE_PROMPTS.length];pi++;
+  },50000);
+}
+function tickUrge(){
+  const m=Math.floor(urgeLeft/60),s=urgeLeft%60;
+  document.getElementById('urgeClock').textContent=m+':'+String(s).padStart(2,'0');
+  document.getElementById('urgeBar').style.width=((urgeTotal-urgeLeft)/urgeTotal*100)+'%';
+  if(urgeLeft<=0){
+    stopUrge();
+    document.getElementById('urgeRun').style.display='none';
+    document.getElementById('urgeDone').style.display='block';
+    return;
+  }
+  urgeLeft--;
+}
+function stopUrge(){clearInterval(urgeTimer);clearInterval(urgePromptTimer)}
+function logUrge(){
+  const entries=load(K_ENTRIES,[]);
+  entries.push({ts:Date.now(),stress:null,emotions:[],situations:[],text:'Used the urge timer and rode it out ('+Math.round(urgeTotal/60)+' minutes).',type:'moment'});
+  save(K_ENTRIES,entries);
+  document.getElementById('urgeLogged').textContent='Noted. Well done.';
+}
+
+/* ================= trace & breathe ================= */
+let traceRunning=false,traceRAF=null,traceStart=0;
+const TRACE_CYCLE=10000; /* 4s in, 1s hold, 5s out */
+function toggleTrace(){
+  if(traceRunning){stopTrace();return}
+  traceRunning=true;
+  document.getElementById('traceToggle').textContent='Pause';
+  traceStart=performance.now();
+  traceLoop();
+}
+function stopTrace(){
+  traceRunning=false;
+  if(traceRAF)cancelAnimationFrame(traceRAF);
+  const t=document.getElementById('traceToggle');
+  if(t)t.textContent='Start';
+}
+function traceLoop(){
+  if(!traceRunning)return;
+  const path=document.getElementById('tracePath');
+  const dot=document.getElementById('traceDot');
+  const glow=document.getElementById('traceGlow');
+  const txt=document.getElementById('traceText');
+  const L=path.getTotalLength();
+  const elapsed=(performance.now()-traceStart)%TRACE_CYCLE;
+  const frac=elapsed/TRACE_CYCLE;
+  const pt=path.getPointAtLength(frac*L);
+  dot.setAttribute('cx',pt.x);dot.setAttribute('cy',pt.y);
+  glow.setAttribute('stroke-dasharray',(frac*L)+' 2000');
+  if(elapsed<4000)txt.textContent='Breathe in';
+  else if(elapsed<5000)txt.textContent='Hold';
+  else txt.textContent='Breathe out';
+  if(frac<0.02)glow.setAttribute('stroke-dasharray','0 2000');
+  traceRAF=requestAnimationFrame(traceLoop);
+}
+
+/* ================= nav ================= */
+const navMap={'s-home':'n-home','s-cope':'n-cope','s-journal':'n-journal','s-reports':'n-reports'};
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('on'));
+  const n=navMap[id];if(n)document.getElementById(n).classList.add('on');
+  if(id==='s-cope')renderCope();
+  if(id==='s-win')renderWinScreen();
+  if(id==='s-history')renderHistory();
+  if(id==='s-reports'){initDates();renderChart()}
+  window.scrollTo(0,0);
+}
+
+/* ================= greeting ================= */
+(function(){
+  const h=new Date().getHours();
+  const g=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
+  document.getElementById('greet').textContent=g+', Samantha';
+})();
+
+/* ================= hide / decoy ================= */
+function hideNow(){document.getElementById('decoy').classList.add('on')}
+function unhide(){document.getElementById('decoy').classList.remove('on')}
+
+/* ================= breathing ================= */
+let bTimer=null,bPhase=0,bRunning=false;
+const phases=[
+  {c:'in',t:'Breathe in',d:4000},
+  {c:'hold',t:'Hold',d:2000},
+  {c:'out',t:'Breathe out',d:6000}
+];
+function stepBreath(){
+  const p=phases[bPhase];
+  const c=document.getElementById('bCircle');
+  c.className='breath-circle '+p.c;
+  document.getElementById('bText').textContent=p.t;
+  bTimer=setTimeout(()=>{bPhase=(bPhase+1)%phases.length;stepBreath()},p.d);
+}
+function toggleBreath(){
+  if(bRunning){stopBreath();return}
+  bRunning=true;bPhase=0;
+  document.getElementById('bToggle').textContent='Pause';
+  document.getElementById('bCount').textContent='In for 4, hold for 2, out for 6. No rush.';
+  stepBreath();
+}
+function stopBreath(){
+  bRunning=false;clearTimeout(bTimer);
+  const c=document.getElementById('bCircle');
+  if(c){c.className='breath-circle';document.getElementById('bText').textContent='Ready';
+  document.getElementById('bToggle').textContent='Start breathing';
+  document.getElementById('bCount').textContent="Breathe with the circle when you're ready";}
+}
+function startGrounding(){go('s-ground');document.getElementById('groundSaved').textContent='';document.getElementById('groundNote').value='';document.getElementById('copeSuggest').style.display='none';document.getElementById('copeCycleBtn').textContent='Show me something that helps'}
+
+/* ================= grounding note ================= */
+function saveGroundNote(){
+  const t=document.getElementById('groundNote').value.trim();
+  if(!t){document.getElementById('groundSaved').textContent='Nothing to save yet, and that is fine too.';return}
+  const entries=load(K_ENTRIES,[]);
+  entries.push({ts:Date.now(),stress:null,emotions:[],situations:[],text:t,type:'moment'});
+  save(K_ENTRIES,entries);
+  document.getElementById('groundNote').value='';
+  document.getElementById('groundSaved').textContent='Saved. Well done for pausing.';
+}
+
+/* ================= coping suggest cycle ================= */
+let copeOrder=[],copeIdx=0;
+function cycleCope(){
+  const list=load(K_COPE,[]);
+  if(!list.length){
+    document.getElementById('copeSuggest').style.display='block';
+    document.getElementById('copeSuggestTxt').textContent='Your coping list is empty. When things feel calmer, add a few things that help you. For now: breathe, and message Mike if you need him.';
+    return;
+  }
+  if(copeOrder.length!==list.length){copeOrder=list.map((_,i)=>i).sort(()=>Math.random()-.5);copeIdx=0}
+  document.getElementById('copeSuggest').style.display='block';
+  document.getElementById('copeSuggestTxt').textContent=list[copeOrder[copeIdx]];
+  copeIdx=(copeIdx+1)%copeOrder.length;
+  document.getElementById('copeCycleBtn').textContent='Try something else';
+}
+
+/* ================= coping list ================= */
+function renderCope(){
+  const list=load(K_COPE,[]);
+  document.getElementById('copeEmpty').style.display=list.length?'none':'block';
+  document.getElementById('copeList').innerHTML=list.map((c,i)=>
+    `<div class="cope-item"><span class="txt">${esc(c)}</span><button onclick="delCope(${i})">Remove</button></div>`
+  ).join('');
+}
+function addCope(){
+  const inp=document.getElementById('copeInput');
+  const v=inp.value.trim();
+  if(!v)return;
+  const list=load(K_COPE,[]);list.push(v);save(K_COPE,list);
+  inp.value='';copeOrder=[];renderCope();
+}
+function delCope(i){
+  const list=load(K_COPE,[]);list.splice(i,1);save(K_COPE,list);copeOrder=[];renderCope();
+}
+function esc(s){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+
+/* ================= journal ================= */
+const EMOTIONS=['Anxious','Overwhelmed','Sad','Frustrated','Lonely','Tired','Numb','Okay','Hopeful','Calm'];
+const SITUATIONS=['Work','Home','Family','Social','Health','Money','Nothing specific'];
+function chipRow(id,items){
+  document.getElementById(id).innerHTML=items.map(x=>`<button class="chip" data-v="${x}" onclick="this.classList.toggle('on')">${x}</button>`).join('');
+}
+chipRow('jEmotions',EMOTIONS);
+chipRow('jSituations',SITUATIONS);
+function pick(id){return [...document.querySelectorAll('#'+id+' .chip.on')].map(c=>c.dataset.v)}
+function saveEntry(){
+  const entries=load(K_ENTRIES,[]);
+  entries.push({
+    ts:Date.now(),
+    stress:parseInt(document.getElementById('jStress').value),
+    emotions:pick('jEmotions'),
+    situations:pick('jSituations'),
+    text:document.getElementById('jText').value.trim(),
+    type:'checkin'
+  });
+  save(K_ENTRIES,entries);
+  document.getElementById('jText').value='';
+  document.querySelectorAll('.chip.on').forEach(c=>c.classList.remove('on'));
+  document.getElementById('jStress').value=5;document.getElementById('jStressVal').textContent='5';
+  document.getElementById('jSaved').textContent='Saved. Thanks for checking in with yourself.';
+  setTimeout(()=>{document.getElementById('jSaved').textContent=''},4000);
+}
+
+/* ================= history ================= */
+function fmt(ts){
+  return new Date(ts).toLocaleString('en-AU',{weekday:'short',day:'numeric',month:'short',year:'numeric',hour:'numeric',minute:'2-digit'});
+}
+function renderHistory(){
+  const entries=load(K_ENTRIES,[]).slice().reverse();
+  document.getElementById('histEmpty').style.display=entries.length?'none':'block';
+  document.getElementById('histList').innerHTML=entries.map((e,ri)=>{
+    const i=entries.length-1-ri;
+    const tags=[
+      e.stress!=null?('Stress '+e.stress+'/10'):null,
+      ...(e.emotions||[]),...(e.situations||[])
+    ].filter(Boolean).join(' &middot; ');
+    return `<div class="entry">
+      <div class="when">${fmt(e.ts)}${e.type==='moment'?' &middot; in the moment':''}</div>
+      ${tags?`<div class="tags">${tags}</div>`:''}
+      ${e.text?`<div class="body">${esc(e.text)}</div>`:''}
+      <button class="del" onclick="delEntry(${i})">Delete</button>
+    </div>`;
+  }).join('');
+}
+function delEntry(i){
+  if(!confirm('Delete this entry? This cannot be undone.'))return;
+  const entries=load(K_ENTRIES,[]);entries.splice(i,1);save(K_ENTRIES,entries);renderHistory();
+}
+
+/* ================= reports ================= */
+function initDates(){
+  const f=document.getElementById('rFrom'),t=document.getElementById('rTo');
+  if(!f.value){
+    const now=new Date(),ago=new Date(now-29*864e5);
+    t.value=now.toISOString().slice(0,10);
+    f.value=ago.toISOString().slice(0,10);
+  }
+}
+function inRange(){
+  const f=new Date(document.getElementById('rFrom').value+'T00:00:00').getTime();
+  const t=new Date(document.getElementById('rTo').value+'T23:59:59').getTime();
+  return load(K_ENTRIES,[]).filter(e=>e.ts>=f&&e.ts<=t);
+}
+function renderChart(){
+  const es=inRange();
+  const area=document.getElementById('chartArea'),sum=document.getElementById('summaryArea');
+  const stressed=es.filter(e=>e.stress!=null);
+  if(!es.length){area.innerHTML='<p class="small-note">No entries in this range yet.</p>';sum.textContent='No entries in this range yet.';return}
+  /* chart */
+  if(stressed.length){
+    const W=400,H=160,P=28;
+    const xs=stressed.map((e,i)=>P+(stressed.length===1?((W-2*P)/2):i*(W-2*P)/(stressed.length-1)));
+    const ys=stressed.map(e=>H-P-((e.stress-1)/9)*(H-2*P));
+    let path='M'+xs.map((x,i)=>x.toFixed(1)+','+ys[i].toFixed(1)).join(' L');
+    const dots=xs.map((x,i)=>`<circle cx="${x.toFixed(1)}" cy="${ys[i].toFixed(1)}" r="4" fill="#4f7357"/>`).join('');
+    area.innerHTML=`<svg viewBox="0 0 ${W} ${H}" style="width:100%">
+      <line x1="${P}" y1="${H-P}" x2="${W-P}" y2="${H-P}" stroke="#dde8db"/>
+      <line x1="${P}" y1="${P}" x2="${W-P}" y2="${P}" stroke="#eef4ed"/>
+      <text x="4" y="${P+4}" font-size="10" fill="#63705f">10</text>
+      <text x="4" y="${H-P+4}" font-size="10" fill="#63705f">1</text>
+      <path d="${path}" fill="none" stroke="#7ba07f" stroke-width="2.5" stroke-linecap="round"/>
+      ${dots}
+    </svg>`;
+  }else{
+    area.innerHTML='<p class="small-note">No stress ratings in this range yet.</p>';
+  }
+  /* summary */
+  const avg=stressed.length?(stressed.reduce((a,e)=>a+e.stress,0)/stressed.length).toFixed(1):null;
+  const emoCount={};es.forEach(e=>(e.emotions||[]).forEach(x=>emoCount[x]=(emoCount[x]||0)+1));
+  const sitCount={};es.forEach(e=>(e.situations||[]).forEach(x=>sitCount[x]=(sitCount[x]||0)+1));
+  const top=o=>Object.entries(o).sort((a,b)=>b[1]-a[1]).slice(0,3).map(x=>x[0]).join(', ')||'None tagged';
+  sum.innerHTML=`Entries: <b>${es.length}</b><br>`+
+    (avg?`Average stress: <b>${avg}/10</b><br>`:'')+
+    `Most common feelings: <b>${top(emoCount)}</b><br>Most common situations: <b>${top(sitCount)}</b>`;
+}
+function exportCSV(){
+  const es=inRange();
+  if(!es.length){alert('No entries in this date range.');return}
+  const rows=[['Date','Time','Type','Stress','Emotions','Situations','Notes']];
+  es.forEach(e=>{
+    const d=new Date(e.ts);
+    rows.push([
+      d.toLocaleDateString('en-AU'),d.toLocaleTimeString('en-AU',{hour:'numeric',minute:'2-digit'}),
+      e.type==='moment'?'In the moment':'Check in',
+      e.stress!=null?e.stress:'',
+      (e.emotions||[]).join('; '),(e.situations||[]).join('; '),
+      (e.text||'').replace(/\r?\n/g,' ')
+    ]);
+  });
+  const csv=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const blob=new Blob(['\ufeff'+csv],{type:'text/csv'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='journal-export.csv';
+  a.click();
+}
+function exportPDF(){
+  const es=inRange();
+  if(!es.length){alert('No entries in this date range.');return}
+  const f=document.getElementById('rFrom').value,t=document.getElementById('rTo').value;
+  const stressed=es.filter(e=>e.stress!=null);
+  const avg=stressed.length?(stressed.reduce((a,e)=>a+e.stress,0)/stressed.length).toFixed(1):'n/a';
+  const body=es.map(e=>{
+    const tags=[e.stress!=null?('Stress '+e.stress+'/10'):null,...(e.emotions||[]),...(e.situations||[])].filter(Boolean).join(' | ');
+    return `<div style="margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #ddd">
+      <div style="font-size:11px;color:#777">${fmt(e.ts)}${e.type==='moment'?' (in the moment)':''}</div>
+      ${tags?`<div style="font-size:12px;font-weight:bold;margin:3px 0">${tags}</div>`:''}
+      ${e.text?`<div style="font-size:12.5px;line-height:1.5">${esc(e.text)}</div>`:''}
+    </div>`;
+  }).join('');
+  const w=window.open('','_blank');
+  if(!w){alert('Your browser blocked the report window. If you are viewing this in a preview, try it from the hosted page in Safari.');return}
+  w.document.write(`<html><head><title>Journal report</title></head>
+  <body style="font-family:Georgia,serif;max-width:640px;margin:30px auto;color:#222">
+    <h1 style="font-size:22px">Journal report</h1>
+    <p style="font-size:13px;color:#555">Period: ${f} to ${t} &middot; Entries: ${es.length} &middot; Average stress: ${avg}/10</p>
+    <hr style="border:none;border-top:1px solid #ccc;margin:16px 0">
+    ${body}
+    <script>window.onload=function(){window.print()}<\/script>
+  </body></html>`);
+  w.document.close();
+}
+</script>
+</body>
+</html>
